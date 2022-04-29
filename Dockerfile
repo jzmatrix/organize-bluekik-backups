@@ -20,5 +20,5 @@ RUN chmod 755 /opt/startServices.sh
 ADD scripts /opt/organizeKik/
 RUN chmod 755 -R /opt/organizeKik/
 ################################################################################
-# CMD ["/opt/organizeKik/organizeFiles"]   # Used when deployed
-CMD [ "/opt/startServices.sh" ] # Only used for dev and testing
+CMD ["/opt/organizeKik/organizeFiles"]   # Used when deployed
+# CMD [ "/opt/startServices.sh" ] # Only used for dev and testing
