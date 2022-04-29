@@ -1,0 +1,92 @@
+#!/usr/bin/perl
+use Time::Local;
+use Data::Dumper;
+use MIME::Entity;				# libmime-tools-perl
+use Net::SMTP;
+################################################################################
+$debug = 0;
+$mailBody = "";
+&readConfig;
+################################################################################
+$srcFolder = "/data";
+opendir (DIR, $srcFolder);
+my @files = readdir(DIR);
+closedir (DIR);
+foreach (@files)
+{
+	my $file = $_;
+	if (-f $srcFolder . "/" . $file)
+	{
+		my $m = (stat $srcFolder ."/" . $file)[9];
+		($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime($m);
+		####
+		$year = $year + 1900;
+		$mon ++;
+		# $mday ++;
+		if (length($mon) < 2) { $mon = "0$mon"; }
+		if (length($mday) < 2) { $mday = "0$mday"; }
+		####
+		$targetFolder = $srcFolder . "/" . $year . $mon . $mday;
+		####
+		my $folderExist = -e $targetFolder;
+		if ($debug) { print "FILE :: $file :: $m :: $year :: $mon :: $mday :: $targetFolder :: $folderExist\n"; }
+		####
+		$mailBody .= "Moved $file to $targetFolder\n";
+		####
+		if (!$folderExist) { mkdir($targetFolder); }
+		`mv $srcFolder/$file $targetFolder`;
+	}
+}
+if ($mailBody)
+{
+	my $mime = MIME::Entity->build(Type  => 'multipart/alternative',
+								Encoding => '-SUGGEST',
+								From => $config->{'sg_emlFrom'},
+								To => $config->{'sg_emlTo'},
+								Subject => "BlueKik Backup Organizer",
+								Debug => 1
+								);
+
+	$mime->attach(Type => 'text/plain',
+				Encoding =>'-SUGGEST',
+				Data => $mailBody);
+
+	my $smtp = Net::SMTP->new('smtp.sendgrid.net',
+							Port=> 587,
+							Timeout => 20,
+							Hello => $config->{'sg_apiDomain'},
+							Debug => $debug
+							);
+
+	$smtp->auth('apikey', $config->{'sg_apiKey'});
+
+	$smtp->mail($config->{'sg_emlFrom'});
+	$smtp->to($config->{'sg_emlTo'});
+	$smtp->data($mime->stringify);
+	$smtp->quit();
+}
+################################################################################
+################################################################################
+sub readConfig
+{
+	opendir (DIR, "/config");
+	my @configFiles = readdir(DIR);
+	closedir (DIR);
+	foreach (@configFiles)
+	{
+    	my $configKey = $_;
+		if ((substr($configKey,0,1) ne ".") && ($configKey !~ 'swp'))
+		{
+			open(IN, "/config/" . $configKey);
+			my $configValue = <IN>;
+			chomp $configValue;
+			close (IN);
+			$config->{$configKey} = $configValue;
+			#####
+			if ($debug)
+			{
+				print "CONFIG :: $configKey :: $configValue\n";
+			}
+		}
+	}
+}

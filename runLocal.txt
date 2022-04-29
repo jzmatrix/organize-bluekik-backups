@@ -1,0 +1,9 @@
+docker build organize_backup_files -t jzmatrix/organizekik
+
+docker run -t -i \
+	--mount type=bind,src=/mnt/c/Users/jason/OneDrive/FileShare/CodeRepo/Docker/processBlueKikBU/organize_backup_files/scripts,dst=/opt/organizeKik \
+	--mount type=bind,src=/mnt/d/BK,dst=/data \
+	--mount type=bind,src=/mnt/c/Users/jason/OneDrive/FileShare/CodeRepo/TEMP/buxfer_config,dst=/config jzmatrix/organizekik bash
+
+jzmatrix/buxferreports
+jzmatrix/buxferreports
