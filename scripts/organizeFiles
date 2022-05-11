@@ -25,8 +25,10 @@ foreach (@files)
 		# $mday ++;
 		if (length($mon) < 2) { $mon = "0$mon"; }
 		if (length($mday) < 2) { $mday = "0$mday"; }
+		if (length($hour) < 2) { $hour = "0$hour"; }
+		if (length($min) < 2) { $min = "0$min"; }
 		####
-		$targetFolder = $srcFolder . "/" . $year . $mon . $mday;
+		$targetFolder = $srcFolder . "/" . $year . $mon . $mday . "_" . $hour . $min;
 		####
 		my $folderExist = -e $targetFolder;
 		if ($debug) { print "FILE :: $file :: $m :: $year :: $mon :: $mday :: $targetFolder :: $folderExist\n"; }
