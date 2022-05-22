@@ -53,22 +53,14 @@ tolerations: []
 
 affinity: {}
 
-volumes:
-  - name: budget-data
-    claim: ws-budget-ziemba-net
-  - name: status-data
-    claim: ws-status-ziemba-net
-  - name: kik-data
-    claim: ws-kik-ziemba-net
-  - name: kik-drop
-    claim: ws-kik-drop
-
 volumeMounts:
-  - name: budget-data
-    path: /var/www/budget.ziemba.net
-  - name: status-data
-    path: /var/www/status.ziemba.net
   - name: kik-data
-    path: /var/www/kik.ziemba.net
-  - name: kik-drop
-    path: /var/www/kik-drop
+    path: /data
+  - name: kik-config
+    path: /config
+
+volumes:
+  - name: kik-config
+    secret: kik-config
+  - name: kik-data
+    claim: ws-kik-drop
