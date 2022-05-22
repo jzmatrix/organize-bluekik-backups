@@ -20,6 +20,12 @@ jobs:
           name: Prepare Environment
           command: |
             apk add curl
+            ## 
+            curl -LO https://get.helm.sh/helm-v3.8.2-linux-amd64.tar.gz
+            tar -zxvf helm-v3.8.2-linux-amd64.tar.gz
+            mv linux-amd64/helm /usr/local/bin/helm
+            chmod +x /usr/local/bin/helm
+            ##
             curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
             chmod +x ./kubectl
             mv ./kubectl /usr/local/bin
@@ -28,7 +34,10 @@ jobs:
             echo "B64:"
             which base64
             ####
-            base64  -d /tmp/kubeconfig64 > /tmp/kubeconfig
+            mkdir ~/.kube
+            ####
+            base64  -d /tmp/kubeconfig64 > ~/.kube/config
+            chmod 400 ~/.kube/config
       - run:
           name: Authenticate with Docker
           command: |
@@ -44,15 +53,15 @@ jobs:
             TS=`cat /tmp/timestamp`
             echo $TS
             ##
-            docker build --cache-from=app  -t jzmatrix/organize-bluekik-backups:$TS -t jzmatrix/organize-bluekik-backups:latest .
+            docker build --cache-from=app  -t ${IMAGE_REPO}/${IMAGE_NAME}:$TS -t ${IMAGE_REPO}/${IMAGE_NAME}:latest .
             ##
             mkdir -p /caches
-            docker save -o /caches/app.tar jzmatrix/organize-bluekik-backups:latest
+            docker save -o /caches/app.tar ${IMAGE_REPO}/${IMAGE_NAME}:latest
             ##
-            docker push jzmatrix/organize-bluekik-backups:$TS
-            docker push jzmatrix/organize-bluekik-backups:latest
+            docker push ${IMAGE_REPO}/${IMAGE_NAME}:$TS
+            docker push ${IMAGE_REPO}/${IMAGE_NAME}:latest
             ##
-#            kubectl set image deployment/zconnector zconnector=jzmatrix/zconnector:$TS --kubeconfig /tmp/kubeconfig -n websites
+            helm upgrade ${IMAGE_NAME} Helm/ --set serviceName="${SERVICE_NAME}",namespace="${SERVICE_NAMESPACE}",image.repository="${IMAGE_REPO}",image.name="${IMAGE_NAME}",image.tag=$TS
       - save_cache:
           key: v1-{{ .Branch }}-{{ epoch }}
           paths:
