@@ -1,7 +1,7 @@
 FROM jzmatrix/debian-baseimage
 ################################################################################
 RUN apt update && \
-    apt -y install libyaml-tiny-perl liblwp-protocol-https-perl libjson-perl libdbd-mysql-perl libdbi-perl libcryptx-perl libmime-lite-html-perl libmime-tools-perl libmail-imapclient-perl libdate-calc-perl curl libdbd-sqlite3-perl
+    apt -y install libyaml-tiny-perl liblwp-protocol-https-perl libjson-perl libcryptx-perl libmime-lite-html-perl libmime-tools-perl libmail-imapclient-perl libdate-calc-perl
 
 ##
 RUN  apt-get autoremove && \
